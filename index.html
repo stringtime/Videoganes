@@ -1,0 +1,527 @@
+<title>Glitzer-Atelier</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;800&display=swap">
+<style>
+/* Layout: a craft box. Thick ink outlines, sticker-like offset shadows, one big stage + a tool tray. */
+:root{
+  --bg:#dff3ef; --dots:#c3e6de; --ink:#2b2140; --card:#ffffff;
+  --pink:#ff5d8f; --sun:#ffc93c; --teal:#2bb5a7; --lilac:#e9defc; --muted:#5f5677;
+  --display:'Fredoka', ui-rounded, 'Arial Rounded MT Bold', system-ui, sans-serif;
+  --body:'Nunito', system-ui, sans-serif;
+  color-scheme:light;
+}
+[hidden]{display:none!important}
+html{height:100%;box-sizing:border-box}
+*,*::before,*::after{box-sizing:inherit}
+body{height:100%;margin:0;overflow:hidden;color:var(--ink);font-family:var(--body);font-size:16px;
+  background-color:var(--bg);background-image:radial-gradient(var(--dots) 2.5px,transparent 3px);background-size:28px 28px;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit}
+.screen{height:100%;display:flex;flex-direction:column;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* buttons */
+.btn{font:600 17px/1 var(--display);border:3px solid var(--ink);border-radius:16px;background:var(--card);
+  padding:9px 14px;display:inline-flex;gap:7px;align-items:center;box-shadow:0 4px 0 var(--ink);cursor:pointer;min-height:46px}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn svg{width:22px;height:22px;flex:none}
+.btn.hot{background:var(--sun)}
+.btn.pinkb{background:var(--pink);color:#fff}
+button:focus-visible{outline:3px solid var(--pink);outline-offset:3px}
+
+/* home */
+#home{overflow:auto}
+.homeInner{margin:auto;width:min(980px,100%);padding-block:28px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+h1{font:700 clamp(44px,9vw,84px)/1 var(--display);margin:0;letter-spacing:.5px;text-wrap:balance}
+h1 span{color:var(--pink);-webkit-text-stroke:2px var(--ink);text-shadow:4px 4px 0 var(--sun)}
+.lead{font:600 22px var(--display);margin:0 0 10px;color:var(--muted)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:22px;width:100%}
+.card{border:4px solid var(--ink);border-radius:30px;box-shadow:0 8px 0 var(--ink);padding:18px 18px 22px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:8px;transition:transform .15s}
+.card:hover{transform:translateY(-4px) rotate(-1deg)}
+.card:active{transform:translateY(4px);box-shadow:0 3px 0 var(--ink)}
+.card svg{width:150px;height:130px}
+.card b{font:700 30px var(--display)}
+.card span{font-size:16px;color:var(--ink);max-width:24ch}
+.c1{background:var(--sun)} .c2{background:#ffb3cb} .c3{background:#9fe3d9}
+.twinkle{animation:tw 2.4s ease-in-out infinite}
+@keyframes tw{50%{opacity:.25;transform:scale(.7)}}
+
+/* mode screens */
+.bar{display:flex;align-items:center;gap:10px;padding-block:12px;flex-wrap:wrap}
+.bar h2{flex:1;margin:0;font:700 28px var(--display);min-width:0}
+.work{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;padding-bottom:16px}
+.stage{background:var(--card);border:3px solid var(--ink);border-radius:28px;box-shadow:0 6px 0 var(--ink);
+  min-height:0;min-width:0;padding:10px;display:flex;overflow:hidden}
+.stage svg{width:100%;height:100%;touch-action:none;display:block}
+.tools{background:var(--card);border:3px solid var(--ink);border-radius:24px;padding:14px;overflow:auto;
+  display:flex;flex-direction:column;gap:16px;min-height:0}
+.tools h3{margin:0 0 8px;font:600 18px var(--display)}
+.hint{margin:0;color:var(--muted);font-size:15px}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.swatches{display:flex;flex-wrap:wrap;gap:10px}
+.sw{width:46px;height:46px;border-radius:50%;border:3px solid var(--ink);cursor:pointer;padding:0;transition:transform .12s}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 4px var(--card),0 0 0 7px var(--ink);transform:scale(1.08)}
+.sw.magic{background:conic-gradient(#ff4d6d,#ff9f1c,#ffd60a,#80ed99,#4cc9f0,#9d4edd,#ff4d6d)}
+.chip{font:600 16px var(--display);border:3px solid var(--ink);border-radius:14px;background:var(--card);padding:8px 12px;cursor:pointer;min-height:44px}
+.chip[aria-pressed="true"]{background:var(--sun)}
+.tabs .chip[aria-pressed="true"]{background:var(--pink);color:#fff}
+.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.thumb{border:3px solid var(--ink);border-radius:14px;background:var(--card);padding:4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font:600 13px var(--display)}
+.thumb svg{width:100%;aspect-ratio:1;max-width:100%}
+.thumb[aria-pressed="true"]{background:var(--sun)}
+.stk{width:54px;height:54px;border:3px solid var(--ink);border-radius:14px;background:var(--lilac);cursor:pointer;padding:4px}
+.stk[aria-pressed="true"]{background:var(--sun)}
+.stk svg{width:100%;height:100%}
+
+/* coloring pictures */
+.pic .r{fill:#fff;stroke:var(--ink);stroke-width:3;stroke-linejoin:round;vector-effect:non-scaling-stroke;cursor:pointer}
+.pic .line{fill:none;stroke:var(--ink);stroke-width:3;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.pic .d{fill:var(--ink)}
+.pic .eye{fill:#fff;stroke:var(--ink);stroke-width:3;vector-effect:non-scaling-stroke}
+.mini .r,.mini .line,.mini .eye{stroke-width:1}
+.flash{animation:flash .35s ease-out}
+@keyframes flash{0%{filter:brightness(1.6)}100%{filter:none}}
+
+#mkStage{background:#fff0f5}
+#drStage{background:linear-gradient(#fff6d9 0 78%,#ffd1e0 78% 100%)}
+.walk{animation:walk .45s ease-in-out 6 alternate;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes walk{from{transform:translateY(0) rotate(-3deg)}to{transform:translateY(-10px) rotate(3deg)}}
+
+.conf{position:fixed;top:-24px;width:12px;height:16px;border-radius:3px;z-index:50;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(115vh) rotate(800deg)}}
+.cheer{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:51;pointer-events:none;
+  font:700 clamp(40px,9vw,80px) var(--display);color:var(--pink);-webkit-text-stroke:2px var(--ink);text-shadow:4px 4px 0 var(--sun);animation:cheer 1.8s ease-out forwards}
+@keyframes cheer{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-60%) scale(1)}}
+
+@media (max-width:760px){
+  .work{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}
+  .tools{max-height:42vh}
+  .thumbs{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:86px;overflow-x:auto}
+  .bar h2{font-size:22px}
+  .btn .lbl{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .walk,.twinkle,.flash,.card{animation:none;transition:none}
+}
+</style>
+
+<section id="home" class="screen">
+  <div class="homeInner">
+    <h1><span>Glitzer</span>-Atelier</h1>
+    <p class="lead">Was möchtest du heute machen?</p>
+    <div class="cards">
+      <button class="card c1" data-go="color">
+        <svg viewBox="0 0 150 130" aria-hidden="true">
+          <g stroke="#2b2140" stroke-width="4" stroke-linejoin="round">
+            <g transform="rotate(-30 75 65)"><rect x="25" y="52" width="90" height="26" rx="5" fill="#ff5d8f"/><path d="M115 52 L140 65 L115 78Z" fill="#ffe0c7"/><path d="M133 61 L140 65 L133 69Z" fill="#ff5d8f"/><rect x="45" y="52" width="10" height="26" fill="#fff"/></g>
+            <g transform="rotate(-10 75 95)"><rect x="15" y="85" width="90" height="24" rx="5" fill="#4cc9f0"/><path d="M105 85 L128 97 L105 109Z" fill="#ffe0c7"/><path d="M121 93 L128 97 L121 101Z" fill="#4cc9f0"/></g>
+          </g>
+          <circle class="twinkle" cx="30" cy="25" r="7" fill="#fff" stroke="#2b2140" stroke-width="3"/>
+        </svg>
+        <b>Ausmalen</b><span>Tippe auf ein Feld und es wird bunt.</span>
+      </button>
+      <button class="card c2" data-go="makeup">
+        <svg viewBox="0 0 150 130" aria-hidden="true">
+          <g stroke="#2b2140" stroke-width="4" stroke-linejoin="round">
+            <ellipse cx="75" cy="68" rx="44" ry="52" fill="#ffe0c7"/>
+            <path d="M48 58 Q60 44 72 58 Q60 52 48 58Z M78 58 Q90 44 102 58 Q90 52 78 58Z" fill="#9d4edd"/>
+            <circle cx="60" cy="62" r="5" fill="#2b2140"/><circle cx="90" cy="62" r="5" fill="#2b2140"/>
+            <path d="M60 92 Q75 84 90 92 Q75 106 60 92Z" fill="#ff4d6d"/>
+            <circle cx="52" cy="80" r="8" fill="#ff8fab" stroke="none" opacity=".7"/><circle cx="98" cy="80" r="8" fill="#ff8fab" stroke="none" opacity=".7"/>
+            <path d="M75 6 l6 12 13 2 -10 9 3 13 -12 -7 -12 7 3 -13 -10 -9 13 -2Z" fill="#ffd60a" class="twinkle"/>
+          </g>
+        </svg>
+        <b>Schminken</b><span>Lippenstift, Rouge, Pinsel und Sticker.</span>
+      </button>
+      <button class="card c3" data-go="dress">
+        <svg viewBox="0 0 150 130" aria-hidden="true">
+          <g stroke="#2b2140" stroke-width="4" stroke-linejoin="round">
+            <path d="M58 10 Q75 22 92 10 L100 22 L90 34 L94 56 L122 120 L28 120 L56 56 L60 34 L50 22Z" fill="#ff5d8f"/>
+            <path d="M56 56 H94" stroke="#fff" stroke-width="6"/>
+            <path d="M75 70 l4 8 9 1 -7 6 2 9 -8 -5 -8 5 2 -9 -7 -6 9 -1Z" fill="#ffd60a" stroke-width="2"/>
+          </g>
+        </svg>
+        <b>Anziehen</b><span>Stell ein Outfit zusammen und lauf über den Laufsteg.</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<section id="color" class="screen" hidden>
+  <div class="bar">
+    <button class="btn" data-go="home" aria-label="Zum Start"><svg viewBox="0 0 24 24"><path d="M3 11 L12 3 L21 11 V21 H14 V15 H10 V21 H3Z" fill="#ff5d8f" stroke="#2b2140" stroke-width="2" stroke-linejoin="round"/></svg><span class="lbl">Start</span></button>
+    <h2>Ausmalen</h2>
+    <button class="btn" data-undo aria-label="Rückgängig"><svg viewBox="0 0 24 24"><path d="M9 4 L3 10 L9 16 M3 10 H14 A6 6 0 0 1 14 22 H9" fill="none" stroke="#2b2140" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lbl">Ups</span></button>
+    <button class="btn" data-reset aria-label="Neu anfangen"><svg viewBox="0 0 24 24"><path d="M6 3 H14 L19 8 V21 H6Z M14 3 V8 H19" fill="#fff" stroke="#2b2140" stroke-width="2" stroke-linejoin="round"/></svg><span class="lbl">Neu</span></button>
+    <button class="btn snd" aria-label="Ton an oder aus"></button>
+  </div>
+  <div class="work">
+    <div class="stage"><svg id="colorSvg" class="pic" viewBox="0 0 400 400" aria-label="Ausmalbild"></svg></div>
+    <aside class="tools" id="colorTools"></aside>
+  </div>
+</section>
+
+<section id="makeup" class="screen" hidden>
+  <div class="bar">
+    <button class="btn" data-go="home" aria-label="Zum Start"><svg viewBox="0 0 24 24"><path d="M3 11 L12 3 L21 11 V21 H14 V15 H10 V21 H3Z" fill="#ff5d8f" stroke="#2b2140" stroke-width="2" stroke-linejoin="round"/></svg><span class="lbl">Start</span></button>
+    <h2>Schminken</h2>
+    <button class="btn" data-undo aria-label="Rückgängig"><svg viewBox="0 0 24 24"><path d="M9 4 L3 10 L9 16 M3 10 H14 A6 6 0 0 1 14 22 H9" fill="none" stroke="#2b2140" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lbl">Ups</span></button>
+    <button class="btn" data-reset aria-label="Abschminken"><svg viewBox="0 0 24 24"><path d="M6 3 H14 L19 8 V21 H6Z M14 3 V8 H19" fill="#fff" stroke="#2b2140" stroke-width="2" stroke-linejoin="round"/></svg><span class="lbl">Abschminken</span></button>
+    <button class="btn snd" aria-label="Ton an oder aus"></button>
+  </div>
+  <div class="work">
+    <div class="stage" id="mkStage">
+      <svg id="mkSvg" viewBox="0 0 400 480" aria-label="Gesicht zum Schminken">
+        <defs><clipPath id="faceClip"><ellipse cx="200" cy="230" rx="105" ry="130"/></clipPath></defs>
+        <g stroke="#2b2140" stroke-width="3" stroke-linejoin="round">
+          <path class="hair" fill="#5b3a29" d="M70 230 Q60 60 200 50 Q340 60 330 230 Q345 380 310 445 H90 Q55 380 70 230Z"/>
+          <rect class="skin" fill="#f5c6a5" x="165" y="320" width="70" height="95"/>
+          <path fill="#ff8fab" d="M60 480 Q70 405 200 400 Q330 405 340 480Z"/>
+          <ellipse class="skin" fill="#f5c6a5" cx="95" cy="240" rx="18" ry="28"/>
+          <ellipse class="skin" fill="#f5c6a5" cx="305" cy="240" rx="18" ry="28"/>
+          <ellipse class="skin" id="face" fill="#f5c6a5" cx="200" cy="230" rx="105" ry="130"/>
+        </g>
+        <g id="paintLayer" clip-path="url(#faceClip)"></g>
+        <g stroke="#2b2140" stroke-linecap="round" stroke-linejoin="round">
+          <circle class="cheek" cx="138" cy="282" r="26" fill="none" stroke="none" opacity=".55"/>
+          <circle class="cheek" cx="262" cy="282" r="26" fill="none" stroke="none" opacity=".55"/>
+          <path class="lid" fill="none" stroke="none" opacity=".8" d="M120 224 Q155 180 190 224 Q155 206 120 224Z"/>
+          <path class="lid" fill="none" stroke="none" opacity=".8" d="M210 224 Q245 180 280 224 Q245 206 210 224Z"/>
+          <ellipse cx="155" cy="228" rx="25" ry="15" fill="#fff" stroke-width="3"/>
+          <ellipse cx="245" cy="228" rx="25" ry="15" fill="#fff" stroke-width="3"/>
+          <circle class="iris" cx="155" cy="229" r="11" fill="#5b3a29" stroke-width="2"/>
+          <circle class="iris" cx="245" cy="229" r="11" fill="#5b3a29" stroke-width="2"/>
+          <circle cx="155" cy="229" r="5" fill="#2b2140" stroke="none"/><circle cx="245" cy="229" r="5" fill="#2b2140" stroke="none"/>
+          <circle cx="159" cy="225" r="3" fill="#fff" stroke="none"/><circle cx="249" cy="225" r="3" fill="#fff" stroke="none"/>
+          <path d="M128 222 Q155 205 182 222 M218 222 Q245 205 272 222" fill="none" stroke-width="4"/>
+          <path d="M134 214 l-7 -8 M155 209 l0 -10 M176 214 l7 -8 M224 214 l-7 -8 M245 209 l0 -10 M266 214 l7 -8" fill="none" stroke-width="3"/>
+          <path d="M127 190 Q155 174 183 186 M217 186 Q245 174 273 190" fill="none" stroke-width="6"/>
+          <path d="M200 242 Q192 268 200 272 Q206 274 211 269" fill="none" stroke-width="3"/>
+          <path id="lips" fill="#e8a0a0" stroke-width="3" d="M160 310 Q180 297 200 305 Q220 297 240 310 Q220 342 200 342 Q180 342 160 310Z"/>
+          <path d="M163 311 Q200 320 237 311" fill="none" stroke-width="3"/>
+        </g>
+        <path class="hair" fill="#5b3a29" stroke="#2b2140" stroke-width="3" stroke-linejoin="round" d="M92 210 Q85 92 200 88 Q315 92 308 210 Q300 150 262 128 Q230 150 200 132 Q165 150 135 130 Q100 150 92 210Z"/>
+        <g id="stickerLayer"></g>
+      </svg>
+    </div>
+    <aside class="tools" id="mkTools"></aside>
+  </div>
+</section>
+
+<section id="dress" class="screen" hidden>
+  <div class="bar">
+    <button class="btn" data-go="home" aria-label="Zum Start"><svg viewBox="0 0 24 24"><path d="M3 11 L12 3 L21 11 V21 H14 V15 H10 V21 H3Z" fill="#ff5d8f" stroke="#2b2140" stroke-width="2" stroke-linejoin="round"/></svg><span class="lbl">Start</span></button>
+    <h2>Anziehen</h2>
+    <button class="btn" data-undo aria-label="Rückgängig"><svg viewBox="0 0 24 24"><path d="M9 4 L3 10 L9 16 M3 10 H14 A6 6 0 0 1 14 22 H9" fill="none" stroke="#2b2140" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="lbl">Ups</span></button>
+    <button class="btn snd" aria-label="Ton an oder aus"></button>
+  </div>
+  <div class="work">
+    <div class="stage" id="drStage"><svg id="drSvg" viewBox="0 -20 300 550" aria-label="Anziehpuppe"></svg></div>
+    <aside class="tools" id="drTools"></aside>
+  </div>
+</section>
+
+<script>
+const NS='http://www.w3.org/2000/svg', INK='#2b2140';
+const $=s=>document.querySelector(s);
+const PAL=['#ff4d6d','#ff8fab','#ffc2d1','#ff9f1c','#ffd60a','#fff3b0','#80ed99','#38b000','#4cc9f0','#4361ee','#b8c0ff','#9d4edd','#e0aaff','#8d5524','#ffffff','#2b2140'];
+const LIP=['#e63946','#ff4d6d','#ff8fab','#c9184a','#9d4edd','#ff9f1c','#b5651d','#4361ee'];
+const LIDS=['#ff8fab','#e0aaff','#9d4edd','#4cc9f0','#80ed99','#ffd60a','#ff9f1c','#c0c0d0'];
+const CHEEK=['#ff8fab','#ff4d6d','#ffb3a7','#e0aaff','#ff9f1c'];
+const IRIS=['#5b3a29','#2e86de','#38b000','#7f8c8d','#9d4edd','#00b4d8'];
+const HAIR=['#2b1d14','#5b3a29','#a0522d','#e8c07d','#f4d35e','#d62828','#ff8fab','#9d4edd','#4cc9f0','#ffffff'];
+const SKIN=['#ffe0c7','#f5c6a5','#e0a982','#c68863','#8d5a3b','#5c3a24'];
+const rnd=a=>a[Math.floor(Math.random()*a.length)];
+
+/* ---------- sound ---------- */
+let ac=null, muted=false;
+function tone(f=600,d=.09,type='sine',v=.14,when=0){
+  if(muted) return;
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    const t=ac.currentTime+when, o=ac.createOscillator(), g=ac.createGain();
+    o.type=type;o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*1.5,t+d);
+    g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);
+    o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d+.03);
+  }catch(e){}
+}
+const pop=()=>tone(480+Math.random()*420,.09);
+const fanfare=()=>[523,659,784,1047,784,1047].forEach((f,i)=>tone(f,.2,'triangle',.13,i*.13));
+const SND_ON='<svg viewBox="0 0 24 24"><path d="M3 9 H7 L12 5 V19 L7 15 H3Z" fill="#ffc93c" stroke="#2b2140" stroke-width="2" stroke-linejoin="round"/><path d="M16 9 Q18 12 16 15 M19 6 Q23 12 19 18" fill="none" stroke="#2b2140" stroke-width="2" stroke-linecap="round"/></svg>';
+const SND_OFF='<svg viewBox="0 0 24 24"><path d="M3 9 H7 L12 5 V19 L7 15 H3Z" fill="#ddd" stroke="#2b2140" stroke-width="2" stroke-linejoin="round"/><path d="M16 9 L22 15 M22 9 L16 15" stroke="#2b2140" stroke-width="2" stroke-linecap="round"/></svg>';
+function paintSnd(){document.querySelectorAll('.snd').forEach(b=>b.innerHTML=muted?SND_OFF:SND_ON)}
+paintSnd();
+
+/* ---------- celebration ---------- */
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function celebrate(text){
+  fanfare();
+  const n=reduce?16:90;
+  for(let i=0;i<n;i++){
+    const c=document.createElement('div');c.className='conf';
+    c.style.left=Math.random()*100+'vw';c.style.background=rnd(PAL.slice(0,13));
+    c.style.animationDuration=(1.6+Math.random()*1.6)+'s';c.style.animationDelay=(Math.random()*.5)+'s';
+    document.body.append(c);setTimeout(()=>c.remove(),4000);
+  }
+  if(text){const t=document.createElement('div');t.className='cheer';t.textContent=text;document.body.append(t);setTimeout(()=>t.remove(),1900);}
+}
+
+/* ---------- helpers ---------- */
+function pt(svg,e){const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse());}
+function ring(cx,cy,n,dist,shape){let s='';for(let i=0;i<n;i++){s+=`<g transform="rotate(${i*360/n} ${cx} ${cy})">${shape(cx,cy-dist)}</g>`;}return s;}
+function starPts(cx,cy,R,r,n=5){const p=[];for(let i=0;i<n*2;i++){const rad=i%2?r:R,a=Math.PI*i/n-Math.PI/2;p.push((cx+rad*Math.cos(a)).toFixed(1)+','+(cy+rad*Math.sin(a)).toFixed(1));}return p.join(' ');}
+const star=(cx,cy,R,r)=>`<polygon class="r" points="${starPts(cx,cy,R,r)}"/>`;
+const cloud=(x,y,s)=>`<path class="r" transform="translate(${x} ${y}) scale(${s})" d="M0 0 a20 20 0 0 1 10 -36 a28 28 0 0 1 52 -8 a22 22 0 0 1 36 24 a18 18 0 0 1 -6 20Z"/>`;
+function flower(cx,cy,pr,n){return `<rect class="r" x="${cx-5}" y="${cy}" width="10" height="${375-cy}" rx="5"/>
+<path class="r" d="M${cx+4} ${cy+80} Q${cx+45} ${cy+45} ${cx+62} ${cy+65} Q${cx+40} ${cy+95} ${cx+4} ${cy+80}Z"/>
+<path class="r" d="M${cx-4} ${cy+105} Q${cx-45} ${cy+70} ${cx-62} ${cy+90} Q${cx-40} ${cy+120} ${cx-4} ${cy+105}Z"/>
+${ring(cx,cy,n,pr*1.25,(x,y)=>`<circle class="r" cx="${x}" cy="${y}" r="${pr}"/>`)}
+<circle class="r" cx="${cx}" cy="${cy}" r="${pr*.85}"/>`;}
+const win=(x,y)=>[[0,0],[24,0],[0,24],[24,24]].map(([a,b])=>`<rect class="r" x="${x+a}" y="${y+b}" width="22" height="22"/>`).join('');
+const band=(cx,cy,R,r)=>`<path class="r" d="M${cx-R} ${cy} A${R} ${R} 0 0 1 ${cx+R} ${cy} L${cx+r} ${cy} A${r} ${r} 0 0 0 ${cx-r} ${cy}Z"/>`;
+
+/* ---------- coloring pictures ---------- */
+const PICS=[
+ {name:'Blumenwiese',svg:()=>`<rect class="r" x="0" y="0" width="400" height="400"/>
+  <path class="r" d="M0 290 Q100 255 200 285 T400 280 V400 H0Z"/>
+  ${ring(335,72,10,54,(x,y)=>`<path class="r" d="M${x-7} ${y+8} L${x} ${y-10} L${x+7} ${y+8}Z"/>`)}
+  <circle class="r" cx="335" cy="72" r="36"/>
+  ${cloud(40,120,1)}
+  ${flower(115,215,24,7)}${flower(285,250,18,5)}
+  <ellipse class="r" cx="190" cy="110" rx="26" ry="20" transform="rotate(-25 190 110)"/>
+  <ellipse class="r" cx="240" cy="110" rx="26" ry="20" transform="rotate(25 240 110)"/>
+  <ellipse class="r" cx="196" cy="142" rx="17" ry="13" transform="rotate(25 196 142)"/>
+  <ellipse class="r" cx="234" cy="142" rx="17" ry="13" transform="rotate(-25 234 142)"/>
+  <ellipse class="r" cx="215" cy="125" rx="6" ry="28"/>
+  <path class="line" d="M213 99 Q205 82 198 78 M217 99 Q225 82 232 78"/>`},
+ {name:'Haus',svg:()=>`<rect class="r" x="0" y="0" width="400" height="400"/>
+  <path class="r" d="M0 320 Q200 298 400 320 V400 H0Z"/>
+  <circle class="r" cx="60" cy="60" r="30"/>${cloud(270,90,.9)}
+  <rect class="r" x="250" y="95" width="26" height="60"/>
+  <rect class="r" x="90" y="190" width="200" height="140"/>
+  <polygon class="r" points="70,195 190,95 310,195"/>
+  <circle class="r" cx="190" cy="155" r="16"/>
+  <rect class="r" x="165" y="250" width="50" height="80" rx="12"/><circle class="d" cx="205" cy="292" r="4"/>
+  ${win(108,215)}${win(226,215)}
+  <rect class="r" x="335" y="230" width="22" height="98"/>
+  <circle class="r" cx="320" cy="242" r="24"/><circle class="r" cx="372" cy="242" r="24"/><circle class="r" cx="346" cy="212" r="34"/>
+  <ellipse class="r" cx="190" cy="350" rx="24" ry="8"/><ellipse class="r" cx="180" cy="372" rx="26" ry="9"/>`},
+ {name:'Unterwasser',svg:()=>`<rect class="r" x="0" y="0" width="400" height="400"/>
+  <path class="r" d="M0 340 Q120 315 220 335 T400 330 V400 H0Z"/>
+  <path class="r" d="M40 345 Q20 290 45 250 Q65 210 45 170 Q78 210 62 250 Q45 295 62 345Z"/>
+  <path class="r" d="M345 340 Q325 300 350 260 Q368 228 352 200 Q382 230 366 262 Q350 300 362 340Z"/>
+  <polygon class="r" points="252,170 302,132 302,208"/>
+  <ellipse class="r" cx="200" cy="170" rx="65" ry="42"/>
+  <path class="r" d="M178 131 Q205 98 236 136Z"/>
+  <path class="r" d="M218 132 Q203 170 218 208 Q238 170 218 132Z"/>
+  <circle class="eye" cx="162" cy="160" r="10"/><circle class="d" cx="160" cy="160" r="4"/>
+  <path class="line" d="M140 182 Q150 188 158 182"/>
+  <polygon class="r" points="78,262 48,242 48,282"/>
+  <ellipse class="r" cx="110" cy="262" rx="35" ry="22"/>
+  <circle class="eye" cx="130" cy="256" r="6"/><circle class="d" cx="131" cy="256" r="2.5"/>
+  <polygon class="r" points="${starPts(285,360,30,13)}"/>
+  <path class="r" d="M120 375 Q150 322 180 375Z"/><path class="line" d="M150 340 V372 M136 352 L142 373 M164 352 L158 373"/>
+  <circle class="r" cx="150" cy="110" r="8"/><circle class="r" cx="135" cy="84" r="6"/><circle class="r" cx="160" cy="58" r="10"/>
+  <circle class="r" cx="320" cy="85" r="9"/><circle class="r" cx="340" cy="52" r="6"/>`},
+ {name:'Regenbogen',svg:()=>`<rect class="r" x="0" y="0" width="400" height="400"/>
+  ${[190,168,146,124,102,80].map(R=>band(200,310,R,R-22)).join('')}
+  <path class="r" d="M0 330 Q200 290 400 330 V400 H0Z"/>
+  ${cloud(5,335,1.4)}${cloud(258,335,1.4)}
+  ${star(60,60,20,9)}${star(340,50,15,7)}${star(300,128,11,5)}${star(95,150,12,5)}${star(200,60,13,6)}`},
+ {name:'Mandala',svg:()=>`<rect class="r" x="0" y="0" width="400" height="400"/>
+  <circle class="r" cx="200" cy="200" r="180"/>
+  ${ring(200,200,16,150,(x,y)=>`<ellipse class="r" cx="${x}" cy="${y}" rx="14" ry="28"/>`)}
+  <circle class="r" cx="200" cy="200" r="118"/>
+  ${ring(200,200,12,95,(x,y)=>`<path class="r" d="M${x} ${y-24} Q${x+20} ${y} ${x} ${y+24} Q${x-20} ${y} ${x} ${y-24}Z"/>`)}
+  <circle class="r" cx="200" cy="200" r="65"/>
+  ${ring(200,200,8,45,(x,y)=>`<circle class="r" cx="${x}" cy="${y}" r="16"/>`)}
+  <circle class="r" cx="200" cy="200" r="24"/>`}
+];
+
+/* ---------- undo per screen ---------- */
+const undo={color:[],makeup:[],dress:[]};
+let screen='home';
+
+/* ---------- AUSMALEN ---------- */
+const col={pic:0,color:PAL[0],magic:false,done:false};
+const colorSvg=$('#colorSvg'), colorTools=$('#colorTools');
+colorTools.innerHTML=`<div><h3>Bild aussuchen</h3><div class="thumbs">${PICS.map((p,i)=>`<button class="thumb" data-pic="${i}"><svg class="pic mini" viewBox="0 0 400 400" aria-hidden="true">${p.svg()}</svg><span>${p.name}</span></button>`).join('')}</div></div>
+<div><h3>Farbe</h3><div class="swatches">${PAL.map(c=>`<button class="sw" data-c="${c}" style="background:${c}" aria-label="Farbe"></button>`).join('')}<button class="sw magic" data-magic aria-label="Zauberfarbe: jedes Mal eine Überraschung"></button></div></div>
+<p class="hint">Tipp: Der Regenbogen-Knopf ist die Zauberfarbe. Jedes Feld wird eine Überraschung!</p>`;
+function loadPic(i){col.pic=i;col.done=false;undo.color=[];colorSvg.innerHTML=PICS[i].svg();
+  colorTools.querySelectorAll('.thumb').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pic==i));}
+function markColor(){colorTools.querySelectorAll('.sw').forEach(b=>b.setAttribute('aria-pressed',col.magic?b.hasAttribute('data-magic'):b.dataset.c===col.color));}
+colorTools.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.pic!==undefined){loadPic(+t.dataset.pic);pop();}
+  else if(t.hasAttribute('data-magic')){col.magic=true;markColor();pop();}
+  else if(t.dataset.c){col.color=t.dataset.c;col.magic=false;markColor();pop();}
+});
+colorSvg.addEventListener('pointerdown',e=>{
+  const t=e.target.closest('.r');if(!t)return;
+  const prev=t.style.fill, c=col.magic?rnd(PAL.slice(0,13)):col.color;
+  t.style.fill=c;undo.color.push(()=>{t.style.fill=prev;col.done=false;});
+  t.classList.remove('flash');void t.getBBox();t.classList.add('flash');pop();
+  if(!col.done&&[...colorSvg.querySelectorAll('.r')].every(r=>r.style.fill)){col.done=true;setTimeout(()=>celebrate('Wunderschön!'),250);}
+});
+function resetColor(){const els=[...colorSvg.querySelectorAll('.r')],prev=els.map(r=>r.style.fill);
+  els.forEach(r=>r.style.fill='');col.done=false;undo.color.push(()=>els.forEach((r,i)=>r.style.fill=prev[i]));}
+loadPic(0);markColor();
+
+/* ---------- SCHMINKEN ---------- */
+const mkSvg=$('#mkSvg'), mkTools=$('#mkTools'), paintLayer=$('#paintLayer'), stickerLayer=$('#stickerLayer');
+const MK_TABS=[
+ {id:'lips',label:'Lippenstift',colors:LIP,sel:'#lips',hint:'Such dir einen Lippenstift aus.'},
+ {id:'lids',label:'Lidschatten',colors:LIDS,sel:'.lid',hint:'Welche Farbe kommt auf die Augenlider?'},
+ {id:'cheeks',label:'Rouge',colors:CHEEK,sel:'.cheek',hint:'Ein bisschen Farbe für die Wangen.'},
+ {id:'iris',label:'Augenfarbe',colors:IRIS,sel:'.iris',hint:'Welche Augenfarbe soll es sein?'},
+ {id:'paint',label:'Pinsel',colors:PAL.slice(0,15),hint:'Male mit dem Finger auf das Gesicht. Wie wäre es mit Schnurrhaaren oder einem Schmetterling?'},
+ {id:'sticker',label:'Sticker',colors:PAL.slice(0,15),hint:'Such dir einen Sticker aus und tippe aufs Gesicht.'},
+ {id:'hair',label:'Haare',colors:HAIR,sel:'.hair',hint:'Färbe die Haare in deiner Lieblingsfarbe.'},
+ {id:'skin',label:'Haut',colors:SKIN,sel:'.skin',hint:'Wähle die Hautfarbe.'}];
+const STICKERS={
+ stern:c=>`<polygon points="${starPts(0,0,18,8)}" fill="${c}" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/>`,
+ herz:c=>`<path d="M0 12 C-28 -6 -15 -30 0 -14 C15 -30 28 -6 0 12Z" fill="${c}" stroke="#fff" stroke-width="2.5"/>`,
+ blume:c=>`${[0,72,144,216,288].map(a=>`<circle cx="${(9*Math.sin(a*Math.PI/180)).toFixed(1)}" cy="${(-9*Math.cos(a*Math.PI/180)).toFixed(1)}" r="7.5" fill="${c}" stroke="#fff" stroke-width="2"/>`).join('')}<circle r="6" fill="#ffd60a" stroke="#fff" stroke-width="2"/>`,
+ falter:c=>`<ellipse cx="-11" cy="-7" rx="12" ry="9" fill="${c}" stroke="#fff" stroke-width="2" transform="rotate(-25 -11 -7)"/><ellipse cx="11" cy="-7" rx="12" ry="9" fill="${c}" stroke="#fff" stroke-width="2" transform="rotate(25 11 -7)"/><ellipse cx="-8" cy="8" rx="8" ry="6" fill="${c}" stroke="#fff" stroke-width="2"/><ellipse cx="8" cy="8" rx="8" ry="6" fill="${c}" stroke="#fff" stroke-width="2"/><ellipse rx="3" ry="13" fill="${INK}"/>`,
+ glitzer:()=>Array.from({length:7},()=>{const x=(Math.random()*40-20).toFixed(1),y=(Math.random()*40-20).toFixed(1),s=3+Math.random()*5;return `<polygon points="${starPts(+x,+y,s,s*.35,4)}" fill="${rnd(['#ffd60a','#ff8fab','#4cc9f0','#ffffff','#e0aaff'])}" stroke="#fff" stroke-width=".8"/>`}).join(''),
+ diamant:c=>`<polygon points="0,-17 13,-5 0,17 -13,-5" fill="${c}" stroke="#fff" stroke-width="2.5" stroke-linejoin="round"/><polygon points="0,-17 5,-5 0,17 -5,-5" fill="#fff" opacity=".45"/>`};
+const mk={tab:'lips',color:{},size:14,sticker:'stern'};
+MK_TABS.forEach(t=>mk.color[t.id]=t.colors[0]);mk.color.paint='#4cc9f0';mk.color.sticker='#ffd60a';
+function renderMk(){
+  const t=MK_TABS.find(x=>x.id===mk.tab);
+  let h=`<div class="row tabs">${MK_TABS.map(x=>`<button class="chip" data-tab="${x.id}" aria-pressed="${x.id===mk.tab}">${x.label}</button>`).join('')}</div><p class="hint">${t.hint}</p>`;
+  if(t.id==='sticker')h+=`<div><h3>Sticker</h3><div class="row">${Object.keys(STICKERS).map(k=>`<button class="stk" data-stk="${k}" aria-pressed="${k===mk.sticker}" aria-label="${k}"><svg viewBox="-24 -24 48 48">${STICKERS[k](mk.color.sticker)}</svg></button>`).join('')}</div></div>`;
+  if(t.id==='paint')h+=`<div><h3>Pinselgröße</h3><div class="row">${[[6,'Fein'],[14,'Mittel'],[26,'Dick']].map(([s,l])=>`<button class="chip" data-size="${s}" aria-pressed="${s===mk.size}">${l}</button>`).join('')}</div></div>`;
+  h+=`<div><h3>Farbe</h3><div class="swatches">${t.colors.map(c=>`<button class="sw" data-c="${c}" style="background:${c}" aria-pressed="${c===mk.color[t.id]}" aria-label="Farbe"></button>`).join('')}</div></div>`;
+  mkTools.innerHTML=h;
+}
+function applyMk(sel,c){
+  const els=[...mkSvg.querySelectorAll(sel)],prev=els.map(e=>e.getAttribute('fill'));
+  els.forEach(e=>e.setAttribute('fill',c));undo.makeup.push(()=>els.forEach((e,i)=>e.setAttribute('fill',prev[i])));
+}
+mkTools.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;pop();
+  if(b.dataset.tab){mk.tab=b.dataset.tab;renderMk();return;}
+  if(b.dataset.stk){mk.sticker=b.dataset.stk;}
+  if(b.dataset.size){mk.size=+b.dataset.size;}
+  if(b.dataset.c){mk.color[mk.tab]=b.dataset.c;const t=MK_TABS.find(x=>x.id===mk.tab);if(t.sel)applyMk(t.sel,b.dataset.c);}
+  renderMk();
+});
+let stroke=null;
+mkSvg.addEventListener('pointerdown',e=>{
+  const p=pt(mkSvg,e),t=MK_TABS.find(x=>x.id===mk.tab);
+  if(mk.tab==='paint'){
+    mkSvg.setPointerCapture(e.pointerId);
+    stroke=document.createElementNS(NS,'path');
+    stroke.setAttribute('d',`M${p.x.toFixed(1)} ${p.y.toFixed(1)} l0.1 0`);
+    stroke.setAttribute('fill','none');stroke.setAttribute('stroke',mk.color.paint);stroke.setAttribute('stroke-width',mk.size);
+    stroke.setAttribute('stroke-linecap','round');stroke.setAttribute('stroke-linejoin','round');stroke.setAttribute('opacity','.9');
+    paintLayer.append(stroke);const s=stroke;undo.makeup.push(()=>s.remove());tone(300,.05,'sine',.06);
+  }else if(mk.tab==='sticker'){
+    const g=document.createElementNS(NS,'g'),sc=(.9+Math.random()*.5).toFixed(2),rot=Math.round(Math.random()*40-20);
+    g.setAttribute('transform',`translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${rot}) scale(${sc})`);
+    g.innerHTML=STICKERS[mk.sticker](mk.color.sticker);stickerLayer.append(g);undo.makeup.push(()=>g.remove());pop();
+  }else if(t.sel&&e.target.closest(t.sel)){applyMk(t.sel,mk.color[mk.tab]);pop();}
+});
+mkSvg.addEventListener('pointermove',e=>{if(!stroke)return;const p=pt(mkSvg,e);stroke.setAttribute('d',stroke.getAttribute('d')+` L${p.x.toFixed(1)} ${p.y.toFixed(1)}`);});
+['pointerup','pointercancel'].forEach(ev=>mkSvg.addEventListener(ev,()=>stroke=null));
+const MK_START={lips:'#e8a0a0',lid:'none',cheek:'none',iris:'#5b3a29',hair:'#5b3a29',skin:'#f5c6a5'};
+function resetMk(){
+  const kids=[...paintLayer.children,...stickerLayer.children];
+  const fills=[...mkSvg.querySelectorAll('#lips,.lid,.cheek,.iris,.hair,.skin')].map(el=>[el,el.getAttribute('fill')]);
+  kids.forEach(k=>k.remove());
+  fills.forEach(([el])=>{const k=el.id==='lips'?'lips':el.getAttribute('class');el.setAttribute('fill',MK_START[k]);});
+  undo.makeup.push(()=>{paintLayer.append(...kids.filter(k=>k.tagName==='path'));stickerLayer.append(...kids.filter(k=>k.tagName==='g'));fills.forEach(([el,f])=>el.setAttribute('fill',f));});
+}
+renderMk();
+
+/* ---------- ANZIEHEN ---------- */
+const drSvg=$('#drSvg'), drTools=$('#drTools');
+const O=`stroke="${INK}" stroke-width="3" stroke-linejoin="round"`;
+const limb=(x1,y1,x2,y2,w,c)=>`<path d="M${x1} ${y1} L${x2} ${y2}" stroke="${INK}" stroke-width="${w+6}" stroke-linecap="round"/><path d="M${x1} ${y1} L${x2} ${y2}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`;
+const HAIR_BACK={
+ lang:c=>`<path ${O} fill="${c}" d="M92 95 Q85 30 150 28 Q215 30 208 95 Q228 200 206 272 H94 Q72 200 92 95Z"/>`,
+ zoepfe:c=>`<g ${O} fill="${c}"><ellipse cx="78" cy="170" rx="15" ry="30"/><ellipse cx="222" cy="170" rx="15" ry="30"/><circle cx="88" cy="120" r="24"/><circle cx="212" cy="120" r="24"/><path d="M93 100 Q90 34 150 32 Q210 34 207 100Z"/></g><circle cx="84" cy="140" r="7" fill="#ff5d8f" ${O}/><circle cx="216" cy="140" r="7" fill="#ff5d8f" ${O}/>`,
+ kurz:c=>`<path ${O} fill="${c}" d="M93 105 Q86 33 150 31 Q214 33 207 105 Q212 142 196 152 H104 Q88 142 93 105Z"/>`,
+ dutt:c=>`<g ${O} fill="${c}"><circle cx="150" cy="28" r="27"/><path d="M93 100 Q90 34 150 32 Q210 34 207 100Z"/></g>`};
+const TOPS={
+ tshirt:c=>`<path ${O} fill="${c}" d="M102 170 Q150 156 198 170 L224 224 L196 234 L188 208 L186 296 L114 296 L112 208 L104 234 L76 224Z"/>`,
+ stern:c=>TOPS.tshirt(c)+`<polygon ${O} fill="#ffd60a" points="${starPts(150,240,22,10)}"/>`,
+ top:c=>`<path d="M122 192 V168 M178 192 V168" stroke="${INK}" stroke-width="7" stroke-linecap="round"/><path d="M122 192 V168 M178 192 V168" stroke="${c}" stroke-width="3" stroke-linecap="round"/><path ${O} fill="${c}" d="M112 190 Q150 202 188 190 L187 296 L113 296Z"/>`,
+ pulli:c=>limb(106,180,83,284,26,c)+limb(194,180,217,284,26,c)+`<path ${O} fill="${c}" d="M100 168 Q150 154 200 168 L189 298 L111 298Z"/><path d="M112 290 H188" stroke="${INK}" stroke-width="3" stroke-dasharray="4 5"/>`};
+const BOTTOMS={
+ rock:c=>`<path ${O} fill="${c}" d="M113 286 H187 L214 372 Q150 382 86 372Z"/>`,
+ tutu:c=>`<path ${O} fill="${c}" d="M112 286 H188 L232 345 Q216 336 205 352 Q190 338 178 355 Q164 340 150 356 Q136 340 122 355 Q110 338 95 352 Q84 336 68 345Z"/><path ${O} fill="#fff" opacity=".5" d="M114 290 H186 L210 330 Q150 345 90 330Z"/>`,
+ hose:c=>`<path ${O} fill="${c}" d="M113 284 H187 L188 490 H155 L150 334 L145 490 H112Z"/>`,
+ kleid:c=>`<path ${O} fill="${c}" d="M104 172 Q150 160 196 172 L188 270 L232 425 Q150 440 68 425 L112 270Z"/><path d="M112 270 H188" stroke="#fff" stroke-width="7"/><circle cx="150" cy="270" r="7" fill="#fff" ${O}/>`};
+const SHOES={
+ ballerina:c=>`<g ${O} fill="${c}"><ellipse cx="124" cy="503" rx="18" ry="9"/><ellipse cx="176" cy="503" rx="18" ry="9"/></g>`,
+ stiefel:c=>`<g ${O} fill="${c}"><path d="M116 420 H144 V498 Q144 510 130 510 H108 Q100 500 116 494Z"/><path d="M156 420 H184 V494 Q200 500 192 510 H170 Q156 510 156 498Z"/></g>`,
+ sneaker:c=>`<g ${O} fill="${c}"><path d="M114 492 Q140 488 144 500 V510 H104 Q102 498 114 492Z"/><path d="M186 492 Q160 488 156 500 V510 H196 Q198 498 186 492Z"/></g><path d="M105 507 H143 M157 507 H195" stroke="#fff" stroke-width="4"/>`};
+const EXTRAS={
+ none:()=>'',
+ krone:c=>`<path ${O} fill="${c}" d="M112 46 L116 12 L133 32 L150 4 L167 32 L184 12 L188 46Z"/><circle cx="150" cy="36" r="5" fill="#ff4d6d" ${O}/><circle cx="128" cy="40" r="4" fill="#4cc9f0" ${O}/><circle cx="172" cy="40" r="4" fill="#80ed99" ${O}/>`,
+ schleife:c=>`<g ${O} fill="${c}"><path d="M190 46 L164 26 L164 66Z"/><path d="M190 46 L216 26 L216 66Z"/><circle cx="190" cy="46" r="8"/></g>`,
+ brille:c=>`<g stroke="${c==='#ffffff'?INK:c}" stroke-width="5" fill="#ffffff" fill-opacity=".25"><circle cx="128" cy="98" r="16"/><circle cx="172" cy="98" r="16"/><path d="M144 96 Q150 90 156 96" fill="none"/></g>`,
+ hut:c=>`<g ${O} fill="${c}"><path d="M108 50 Q110 0 150 0 Q190 0 192 50Z"/><ellipse cx="150" cy="50" rx="78" ry="14"/></g><path d="M110 38 Q150 44 190 38" stroke="#fff" stroke-width="7" fill="none"/><circle cx="178" cy="36" r="8" fill="#ff8fab" ${O}/>`};
+const DR_TABS=[
+ {id:'hair',label:'Haare',styles:[['lang','Lang'],['zoepfe','Zöpfe'],['kurz','Kurz'],['dutt','Dutt']],colors:HAIR},
+ {id:'top',label:'Oberteil',styles:[['tshirt','T-Shirt'],['stern','Stern-Shirt'],['top','Top'],['pulli','Pulli']],colors:PAL},
+ {id:'bottom',label:'Rock & Hose',styles:[['rock','Rock'],['tutu','Tutu'],['hose','Hose'],['kleid','Kleid']],colors:PAL},
+ {id:'shoes',label:'Schuhe',styles:[['ballerina','Ballerinas'],['stiefel','Stiefel'],['sneaker','Turnschuhe']],colors:PAL},
+ {id:'extra',label:'Extras',styles:[['none','Nichts'],['krone','Krone'],['schleife','Schleife'],['brille','Brille'],['hut','Hut']],colors:PAL},
+ {id:'skin',label:'Haut',colors:SKIN}];
+let dr={tab:'top',s:{hair:'lang',hairC:'#5b3a29',top:'stern',topC:'#ff5d8f',bottom:'tutu',bottomC:'#e0aaff',shoes:'ballerina',shoesC:'#ff4d6d',extra:'krone',extraC:'#ffd60a',skinC:'#f5c6a5'}};
+function drawDoll(){
+  const s=dr.s,k=s.skinC;
+  let h=`<ellipse cx="150" cy="512" rx="70" ry="10" fill="${INK}" opacity=".12"/><g id="doll">`;
+  h+=HAIR_BACK[s.hair](s.hairC);
+  h+=limb(106,178,80,290,22,k)+limb(194,178,220,290,22,k);
+  h+=`<circle cx="80" cy="297" r="13" fill="${k}" ${O}/><circle cx="220" cy="297" r="13" fill="${k}" ${O}/>`;
+  h+=limb(130,290,130,494,26,k)+limb(170,290,170,494,26,k);
+  h+=`<path ${O} fill="${k}" d="M106 172 Q150 160 194 172 L184 292 L116 292Z"/><rect x="139" y="138" width="22" height="36" fill="${k}" ${O}/>`;
+  h+=BOTTOMS[s.bottom](s.bottomC);
+  if(s.bottom!=='kleid')h+=TOPS[s.top](s.topC);
+  h+=SHOES[s.shoes](s.shoesC);
+  h+=`<circle cx="150" cy="95" r="55" fill="${k}" ${O}/>
+   <ellipse cx="130" cy="98" rx="7" ry="9" fill="${INK}"/><ellipse cx="170" cy="98" rx="7" ry="9" fill="${INK}"/>
+   <circle cx="132" cy="95" r="2.5" fill="#fff"/><circle cx="172" cy="95" r="2.5" fill="#fff"/>
+   <circle cx="118" cy="118" r="9" fill="#ff8fab" opacity=".55"/><circle cx="182" cy="118" r="9" fill="#ff8fab" opacity=".55"/>
+   <path d="M136 122 Q150 135 164 122" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>`;
+  if(s.hair!=='kurz'||true)h+=`<path ${O} fill="${s.hairC}" d="M95 100 Q92 36 150 36 Q208 36 205 100 Q192 66 168 62 Q160 78 140 70 Q118 66 95 100Z"/>`;
+  h+=EXTRAS[s.extra](s.extraC)+'</g>';
+  drSvg.innerHTML=h;
+}
+function renderDr(){
+  const t=DR_TABS.find(x=>x.id===dr.tab), cur=dr.s[t.id==='skin'?'skinC':t.id+'C'];
+  let h=`<div class="row tabs">${DR_TABS.map(x=>`<button class="chip" data-tab="${x.id}" aria-pressed="${x.id===dr.tab}">${x.label}</button>`).join('')}</div>`;
+  if(t.styles)h+=`<div><h3>Was darf es sein?</h3><div class="row">${t.styles.map(([v,l])=>`<button class="chip" data-style="${v}" aria-pressed="${dr.s[t.id]===v}">${l}</button>`).join('')}</div></div>`;
+  h+=`<div><h3>Farbe</h3><div class="swatches">${t.colors.map(c=>`<button class="sw" data-c="${c}" style="background:${c}" aria-pressed="${c===cur}" aria-label="Farbe"></button>`).join('')}</div></div>`;
+  h+=`<div class="row"><button class="btn" data-random><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" fill="#fff" stroke="#2b2140" stroke-width="2"/><circle cx="8" cy="8" r="1.8" fill="#2b2140"/><circle cx="16" cy="16" r="1.8" fill="#2b2140"/><circle cx="12" cy="12" r="1.8" fill="#2b2140"/></svg>Zufall</button>
+   <button class="btn pinkb" data-walk><svg viewBox="0 0 24 24"><polygon points="${starPts(12,12,10,4.5)}" fill="#ffd60a" stroke="#2b2140" stroke-width="1.5"/></svg>Laufsteg!</button></div>`;
+  drTools.innerHTML=h;
+}
+function setDr(fn){const prev={...dr.s};fn(dr.s);undo.dress.push(()=>{dr.s=prev;drawDoll();renderDr();});drawDoll();renderDr();pop();}
+drTools.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  const t=DR_TABS.find(x=>x.id===dr.tab);
+  if(b.dataset.tab){dr.tab=b.dataset.tab;renderDr();pop();}
+  else if(b.dataset.style)setDr(s=>s[t.id]=b.dataset.style);
+  else if(b.dataset.c)setDr(s=>s[t.id==='skin'?'skinC':t.id+'C']=b.dataset.c);
+  else if(b.hasAttribute('data-random'))setDr(s=>{DR_TABS.forEach(x=>{if(x.styles){s[x.id]=rnd(x.styles)[0];s[x.id+'C']=rnd(x.colors);}});s.hairC=rnd(HAIR);});
+  else if(b.hasAttribute('data-walk')){const d=$('#doll');d.classList.remove('walk');void d.getBBox();d.classList.add('walk');celebrate(rnd(['Superstar!','Toll siehst du aus!','Bravo!','Wow!']));}
+});
+drawDoll();renderDr();
+
+/* ---------- navigation & header buttons ---------- */
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.go){screen=b.dataset.go;document.querySelectorAll('.screen').forEach(s=>s.hidden=s.id!==screen);pop();}
+  else if(b.hasAttribute('data-undo')){const f=undo[screen].pop();if(f){f();tone(380,.08,'sine',.12);}}
+  else if(b.hasAttribute('data-reset')){if(screen==='color')resetColor();if(screen==='makeup')resetMk();tone(260,.15,'triangle',.12);}
+  else if(b.classList.contains('snd')){muted=!muted;paintSnd();pop();}
+});
+</script>
