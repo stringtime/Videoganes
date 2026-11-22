@@ -29,7 +29,7 @@ const QUALITY = {
   low: { pixelRatio: Math.min(devicePixelRatio, 1), shadows: false, shadowSize: 512, trees: 1600, clouds: 12, particles: 1800, bloom: false, aa: true },
 }[qualityName] || {};
 const settings = {
-  tilt: store.get('tilt', true), invert: store.get('invert', false), sens: store.get('sens', 1), sound: store.get('sound', true),
+  tilt: store.get('tilt', true), invert: store.get('invert', false), sens: store.get('sens', 1), sound: store.get('sound', true), music: store.get('music', true),
 };
 if (isTouch) document.body.classList.add('touch');
 
@@ -92,6 +92,10 @@ async function boot() {
   $('loading').classList.add('hidden');
   buildMenu();
   showScreen('menu');
+  game.audio.musicOn = settings.music;
+  game.audio.setMusic('menu');
+  const unlock = () => { game.audio.init(); game.audio.setMuted(!settings.sound); removeEventListener('pointerdown', unlock); removeEventListener('keydown', unlock); };
+  addEventListener('pointerdown', unlock); addEventListener('keydown', unlock);
   requestAnimationFrame(loop);
 }
 
@@ -170,6 +174,7 @@ function startMission(i) {
   game.ui = null;
   game.hud.show(true);
   game.hud.message(m.title, 3);
+  game.audio.setMusic('action');
   $('touch').classList.toggle('hidden', !isTouch);
   game.input.clearEdges();
 }
@@ -181,6 +186,7 @@ function endMission(result) {
   const m = game.mission, s = game.stats, P = game.player;
   const ok = result === 'success';
   game.audio.jingle(ok);
+  game.audio.setMusic('menu');
   let stars = 0;
   if (ok) {
     stars = 1;
@@ -221,7 +227,7 @@ function openSettings(from) {
   returnScreen = from;
   $('setQuality').value = qualityName;
   $('setTilt').checked = settings.tilt; $('setInvert').checked = settings.invert;
-  $('setSens').value = settings.sens; $('setSound').checked = settings.sound;
+  $('setSens').value = settings.sens; $('setSound').checked = settings.sound; $('setMusic').checked = settings.music;
   showScreen('settings');
 }
 
@@ -231,10 +237,11 @@ $('btnControls').onclick = () => showScreen('controls');
 $('btnCtlClose').onclick = () => showScreen('menu');
 $('btnSetClose').onclick = () => {
   const q = $('setQuality').value;
-  settings.tilt = $('setTilt').checked; settings.invert = $('setInvert').checked; settings.sens = +$('setSens').value; settings.sound = $('setSound').checked;
+  settings.tilt = $('setTilt').checked; settings.invert = $('setInvert').checked; settings.sens = +$('setSens').value; settings.sound = $('setSound').checked; settings.music = $('setMusic').checked;
   for (const k in settings) store.set(k, settings[k]);
   game.input.tilt.invert = settings.invert; game.input.tilt.sens = settings.sens;
   game.audio.setMuted(!settings.sound);
+  game.audio.setMusicOn(settings.music);
   if (q !== qualityName) { store.set('quality', q); location.reload(); return; }
   showScreen(returnScreen);
 };
@@ -242,7 +249,7 @@ $('btnBack').onclick = () => showScreen('menu');
 $('btnLaunch').onclick = launch;
 $('btnResume').onclick = () => setPaused(false);
 $('btnRestart').onclick = () => { game.paused = false; if (game.audio.ctx) game.audio.ctx.resume(); startMission(game.missionIndex); };
-$('btnQuit').onclick = () => { game.paused = false; if (game.audio.ctx) game.audio.ctx.resume(); clearMission(); game.state = 'menu'; game.mission = null; game.hud.show(false); $('touch').classList.add('hidden'); showScreen('menu'); };
+$('btnQuit').onclick = () => { game.paused = false; if (game.audio.ctx) game.audio.ctx.resume(); clearMission(); game.state = 'menu'; game.mission = null; game.audio.setMusic('menu'); game.hud.show(false); $('touch').classList.add('hidden'); showScreen('menu'); };
 $('btnDbMenu').onclick = () => { clearMission(); game.state = 'menu'; game.mission = null; showScreen('menu'); };
 $('btnDbRetry').onclick = () => startMission(game.missionIndex);
 $('btnDbNext').onclick = () => openBriefing(game.missionIndex + 1);
