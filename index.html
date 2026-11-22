@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0f0c">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Stahlfalke</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Russo+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="importmap">
+    { "imports": { "three": "./lib/three.module.min.js", "three/addons/": "./lib/addons/" } }
+  </script>
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <!-- ===================== HUD ===================== -->
+  <div id="hud" class="hidden">
+    <div id="vignette"></div>
+    <div id="hitflash"></div>
+    <div id="markers"></div>
+    <svg id="reticle" viewBox="-60 -60 120 120">
+      <circle r="26" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="10 6"/>
+      <line x1="-50" y1="0" x2="-32" y2="0" stroke="currentColor" stroke-width="2.5"/>
+      <line x1="32" y1="0" x2="50" y2="0" stroke="currentColor" stroke-width="2.5"/>
+      <line x1="0" y1="-50" x2="0" y2="-32" stroke="currentColor" stroke-width="2.5"/>
+      <line x1="0" y1="32" x2="0" y2="44" stroke="currentColor" stroke-width="2.5"/>
+      <circle r="2.5" fill="currentColor"/>
+    </svg>
+    <div id="fpm"></div>
+    <canvas id="hdg" width="420" height="44"></canvas>
+    <div id="spd" class="tape"><span class="lbl">SPD</span><b>0</b><span class="unit">KM/H</span></div>
+    <div id="alt" class="tape"><span class="lbl">ALT</span><b>0</b><span class="unit" id="ralt">R 0</span></div>
+    <div id="objectives"></div>
+    <div id="msg"></div>
+    <div id="warn">⚠ RAKETENWARNUNG ⚠</div>
+    <div id="lockwarn">RADAR-ERFASSUNG</div>
+    <div id="hoist"><div class="lbl">WINDE</div><div class="bar"><i></i></div></div>
+    <div id="status">
+      <div class="row"><span>HÜLLE</span><div class="bar hp"><i></i></div></div>
+      <div class="row"><span>MG</span><b id="ammoMg">0</b></div>
+      <div class="row"><span>RAK</span><b id="ammoRk">0</b></div>
+      <div class="row"><span>FLR</span><b id="ammoFl">0</b></div>
+      <div class="row"><span>PAX</span><b id="pax">0</b></div>
+    </div>
+    <canvas id="radar" width="200" height="200"></canvas>
+    <div id="hint"></div>
+  </div>
+
+  <!-- ===================== Touch controls ===================== -->
+  <div id="touch" class="hidden">
+    <div id="stickL" class="stick"><div class="knob"></div><span class="cap">STEIGEN / DREHEN</span></div>
+    <div id="stickR" class="stick"><div class="knob"></div><span class="cap">NEIGEN</span></div>
+    <div class="tbtns">
+      <button data-btn="rocket" class="tbtn big rk">RAK</button>
+      <button data-btn="mg" class="tbtn big mg">MG</button>
+      <button data-btn="flare" class="tbtn">FLR</button>
+    </div>
+    <div class="tbtns top">
+      <button data-btn="calib" class="tbtn sm">⟲ NULL</button>
+      <button data-btn="view" class="tbtn sm">👁</button>
+      <button data-btn="pause" class="tbtn sm">II</button>
+    </div>
+  </div>
+
+  <!-- ===================== Screens ===================== -->
+  <div id="menu" class="screen">
+    <div class="panel wide">
+      <h1>STAHLFALKE</h1>
+      <div class="tag">RETTUNG &amp; ANGRIFF · HUBSCHRAUBER-EINSÄTZE</div>
+      <div id="missionList"></div>
+      <div class="row-btns">
+        <button class="btn" id="btnSettings">EINSTELLUNGEN</button>
+        <button class="btn" id="btnControls">STEUERUNG</button>
+      </div>
+      <div class="foot" id="deviceInfo"></div>
+    </div>
+  </div>
+
+  <div id="briefing" class="screen hidden">
+    <div class="panel">
+      <div class="kicker">EINSATZBESPRECHUNG</div>
+      <h2 id="brTitle"></h2>
+      <pre id="brText"></pre>
+      <div class="row-btns">
+        <button class="btn" id="btnBack">ZURÜCK</button>
+        <button class="btn primary" id="btnLaunch">STARTEN ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="pause" class="screen hidden">
+    <div class="panel">
+      <h2>PAUSE</h2>
+      <div class="col-btns">
+        <button class="btn primary" id="btnResume">WEITER</button>
+        <button class="btn" id="btnRestart">NEU STARTEN</button>
+        <button class="btn" id="btnPauseSettings">EINSTELLUNGEN</button>
+        <button class="btn" id="btnQuit">ABBRECHEN</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="debrief" class="screen hidden">
+    <div class="panel">
+      <div class="kicker" id="dbKicker"></div>
+      <h2 id="dbTitle"></h2>
+      <div id="dbStars"></div>
+      <pre id="dbText"></pre>
+      <div class="row-btns">
+        <button class="btn" id="btnDbMenu">MENÜ</button>
+        <button class="btn" id="btnDbRetry">WIEDERHOLEN</button>
+        <button class="btn primary" id="btnDbNext">NÄCHSTER EINSATZ ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="settings" class="screen hidden">
+    <div class="panel">
+      <h2>EINSTELLUNGEN</h2>
+      <label>Grafik
+        <select id="setQuality"><option value="high">Hoch</option><option value="medium">Mittel</option><option value="low">Niedrig</option></select>
+      </label>
+      <label>Handy: Neigungssteuerung <input type="checkbox" id="setTilt"></label>
+      <label>Neigung vor/zurück invertieren <input type="checkbox" id="setInvert"></label>
+      <label>Neigungs-Empfindlichkeit <input type="range" id="setSens" min="0.5" max="2" step="0.1"></label>
+      <label>Ton <input type="checkbox" id="setSound"></label>
+      <div class="note">Grafik-Änderungen werden nach Neuladen aktiv.</div>
+      <div class="row-btns"><button class="btn primary" id="btnSetClose">FERTIG</button></div>
+    </div>
+  </div>
+
+  <div id="controls" class="screen hidden">
+    <div class="panel wide">
+      <h2>STEUERUNG</h2>
+      <div class="ctl-grid">
+        <div>
+          <h3>⌨ Tastatur + Maus</h3>
+          <table>
+            <tr><td>W / S</td><td>Nase runter / hoch (vor / zurück)</td></tr>
+            <tr><td>A / D</td><td>seitlich neigen</td></tr>
+            <tr><td>Q / E</td><td>drehen (Heckrotor)</td></tr>
+            <tr><td>Leertaste / Shift</td><td>steigen</td></tr>
+            <tr><td>C / Strg</td><td>sinken</td></tr>
+            <tr><td>Linksklick / J</td><td>Maschinengewehr</td></tr>
+            <tr><td>Rechtsklick / K</td><td>Raketen</td></tr>
+            <tr><td>G</td><td>Flares</td></tr>
+            <tr><td>V</td><td>Cockpit / Außenansicht</td></tr>
+            <tr><td>Esc / P</td><td>Pause</td></tr>
+          </table>
+        </div>
+        <div>
+          <h3>🎮 Controller</h3>
+          <table>
+            <tr><td>Linker Stick ↕</td><td>steigen / sinken</td></tr>
+            <tr><td>Linker Stick ↔</td><td>drehen</td></tr>
+            <tr><td>Rechter Stick</td><td>neigen (fliegen)</td></tr>
+            <tr><td>RT</td><td>Maschinengewehr</td></tr>
+            <tr><td>LT / RB</td><td>Raketen</td></tr>
+            <tr><td>LB / B</td><td>Flares</td></tr>
+            <tr><td>Y</td><td>Ansicht</td></tr>
+            <tr><td>Start</td><td>Pause</td></tr>
+          </table>
+        </div>
+        <div>
+          <h3>📱 Handy</h3>
+          <table>
+            <tr><td>Handy neigen</td><td>fliegen (vor/zurück/seitlich)</td></tr>
+            <tr><td>Linker Stick</td><td>steigen / sinken / drehen</td></tr>
+            <tr><td>MG / RAK</td><td>feuern (halten)</td></tr>
+            <tr><td>⟲ NULL</td><td>aktuelle Haltung = Mitte</td></tr>
+          </table>
+          <p class="note">Querformat verwenden. Die Neigung wird beim Start auf die aktuelle Haltung kalibriert.</p>
+        </div>
+      </div>
+      <h3>Einsätze</h3>
+      <p class="note">Rettung: grünem/rotem Rauch folgen, tief (&lt; 20 m) und langsam schweben, bis die Winde alle an Bord geholt hat. Dann auf dem H der Basis landen. Auf dem H wird auch repariert und aufmunitioniert.</p>
+      <div class="row-btns"><button class="btn primary" id="btnCtlClose">OK</button></div>
+    </div>
+  </div>
+
+  <div id="rotate" class="hidden"><div>⟳<br>Bitte Handy ins Querformat drehen</div></div>
+  <div id="loading" class="screen"><div class="panel"><h1>STAHLFALKE</h1><div class="tag" id="loadText">Gelände wird erzeugt …</div></div></div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
